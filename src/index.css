@@ -1,0 +1,7 @@
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    place-items: center center;
+    width: 500px;
+    height: 500px;
+}
