@@ -33,7 +33,7 @@ type Turn
 
 type GameState
     = NotStarted
-    | Playing
+    | Playing Turn
     | Winner Turn
     | Draw
 
@@ -86,7 +86,7 @@ update msg ({ gameState, turn, board, roundCount } as model) =
                         { model
                             | board = addMove i j turn board
                             , roundCount = roundCount + 1
-                            , gameState = setGameState roundCount
+                            , gameState = setGameState roundCount turn
                         }
                 in
                 ( newModel
@@ -131,13 +131,13 @@ changeTurn turn =
             Player1
 
 
-setGameState : Int -> GameState
-setGameState count =
+setGameState : Int -> Turn -> GameState
+setGameState count turn =
     if count == 0 then
         NotStarted
 
     else
-        Playing
+        Playing turn
 
 
 addMove : Int -> Int -> Turn -> Board -> Board
@@ -261,7 +261,7 @@ calculateRound { board, turn, roundCount } =
         Draw
 
     else
-        Playing
+        Playing turn
 
 
 
@@ -279,7 +279,7 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view { gameState, board } =
-    div []
+    div [ class "container" ]
         [ h1 [] [ text "Tic-tac-toe" ]
         , h2 []
             [ text <|
@@ -287,8 +287,11 @@ view { gameState, board } =
                     NotStarted ->
                         "Start game!"
 
-                    Playing ->
-                        "Playing ..."
+                    Playing Player1 ->
+                        "Next turn: Player2"
+
+                    Playing Player2 ->
+                        "Next turn: Player1"
 
                     Winner Player1 ->
                         "Player1 won!"
@@ -317,7 +320,7 @@ renderBoard board =
                     Html.Keyed.node "div"
                         [ class "cell", onClick <| Click i j cell ]
                         [ ( String.fromInt i ++ String.fromInt j
-                          , text <| String.fromInt cell
+                          , text <| renderSymbol cell
                           )
                         ]
                 )
@@ -325,3 +328,16 @@ renderBoard board =
         )
         board
         |> List.concat
+
+
+renderSymbol : Int -> String
+renderSymbol cell =
+    case cell of
+        1 ->
+            "x"
+
+        2 ->
+            "o"
+
+        _ ->
+            ""
